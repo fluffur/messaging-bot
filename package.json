@@ -1,0 +1,16 @@
+{
+  "name": "messaging-bot",
+  "main": "scripts/start.js",
+  "type": "commonjs",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node scripts/start.js"
+  },
+  "private": true,
+  "dependencies": {
+    "@mtproto/core": "6.3.0",
+    "dotenv": "^16.4.5",
+    "jsdoc": "^4.0.3",
+    "prompt-sync": "^4.2.0"
+  }
+}
