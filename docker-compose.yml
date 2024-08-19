@@ -1,7 +1,7 @@
 services:
   app:
     container_name: messaging-src
-    working_dir: /usr/src/src
+    working_dir: /usr/src/app
     build:
       dockerfile: Dockerfile
     volumes:

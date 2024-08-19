@@ -71,7 +71,7 @@ class API {
         }
     }
 
-    async getChatHistory(chat_id, access_hash, offsetId) {
+    async getChatHistory(chat_id, access_hash, offset_id) {
         try {
             return await this.call('messages.getHistory', {
                 peer: {
@@ -80,12 +80,27 @@ class API {
                     access_hash: access_hash
                 },
                 limit: 100,
-                offset_id: offsetId
+                offset_id: offset_id
             });
         } catch (error) {
             console.error('Error fetching chat history:', error);
             return null;
         }
+    }
+
+    async sendMessage(user_id, message) {
+        return await this.mtproto.call('messages.sendMessage', {
+            peer: {
+                _: 'inputPeerUser',
+                user_id: user_id,
+            },
+            message: message,
+            random_id: this.generateRandomId(),
+        });
+    }
+
+    generateRandomId() {
+        return Math.ceil(Math.random() * 0xffffff) + Math.ceil(Math.random() * 0xffffff);
     }
 }
 

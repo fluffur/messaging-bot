@@ -1,4 +1,4 @@
-const fs = require("node:fs").promises;
+const {sleep} = require("@mtproto/core/src/utils/common");
 const prompt = require("prompt-sync")({sigint: true});
 
 class App {
@@ -39,8 +39,8 @@ class App {
         }
     }
 
-    async getHistory(outputFile, hundreds = 1) {
-        const chatName = prompt('Write chat name: ')
+    async getUsersFromHistory(chatName, hundreds = 1) {
+
         const data = await this.api.resolvePublicChat(chatName);
         if (!data) {
             console.error('Chat not found', chatName)
@@ -50,35 +50,36 @@ class App {
         const {chat_id, access_hash} = data;
         console.log(`Chat ID: ${chat_id}, Access Hash: ${access_hash}`);
 
-        await fs.access(outputFile, fs.constants.R_OK);
 
         let offsetId = 0;
+        const users = new Set();
         for (let i = 0; i < hundreds; i++) {
             const history = await this.api.getChatHistory(chat_id, access_hash, offsetId);
-            const messages = history.messages;
-            console.log(messages);
 
+            const messages = history.messages;
+
+            await console.log(users.size, i)
             if (messages.length <= 0) {
                 break;
             }
 
-            const extractedMessages = messages.map(message => ({
-                id: message.id,
-                from_id: message.from_id,
-                message: message.message,
-                date: message.date
-            }));
+            const hundredUsers = messages
+                .filter(message => message.from_id && message.from_id.user_id)
+                .map(message => message.from_id.user_id);
 
-            console.log(extractedMessages);
-            let file;
-            file = await fs.readFile(outputFile);
-            const data = JSON.parse(file.toString());
-            data.push(...extractedMessages);
-            await fs.writeFile(outputFile, JSON.stringify(data));
+            users.add(...hundredUsers);
 
             offsetId = messages[messages.length - 1].id;
+            await sleep(550);
         }
-        console.log('Done');
+        return Array.from(users);
+    }
+
+    async sendMessageToUsers(users, message) {
+        for (const userId of users) {
+            await this.api.sendMessage(userId, message);
+            await sleep(1000);
+        }
     }
 }
 
