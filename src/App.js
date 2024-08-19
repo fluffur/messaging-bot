@@ -70,7 +70,7 @@ class App {
             users.add(...hundredUsers);
 
             offsetId = messages[messages.length - 1].id;
-            await sleep(550);
+            await sleep(700);
         }
         return Array.from(users);
     }

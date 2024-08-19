@@ -21,8 +21,8 @@ const prompt = require("prompt-sync")({sigint: true});
     console.log('Users found: ', users);
     await fs.writeFile(path.join(__dirname, '../users.json'), JSON.stringify(users));
 
-    // const message = prompt('Type message: ');
-    // await app.sendMessageToUsers(users, message);
+    const message = prompt('Type message: ');
+    await app.sendMessageToUsers(users, message);
 })();
 
 
