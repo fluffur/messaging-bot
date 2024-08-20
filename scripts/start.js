@@ -20,6 +20,7 @@ const prompt = require("prompt-sync")({sigint: true});
     )
     const hundreds = prompt('Введите количество сотен сообщений для получения из истории чата: ')
     const users = await app.getUsersFromHistory(chatName, parseInt(hundreds));
+
     await fs.writeFile(path.join(__dirname, '../users.json'), JSON.stringify(users));
 
     // TODO: Протестировать отправку сообщений

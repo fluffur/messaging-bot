@@ -68,8 +68,7 @@ class App {
                 });
             }
 
-            // console.log(users);
-            console.log(users.size, i);
+            console.log(`Номер сотни сообщений: ${i}, Всего пользователей найдено: ${users.size}`);
 
             offsetId = history.messages[history.messages.length - 1].id;
             await sleep(800);

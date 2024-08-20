@@ -71,18 +71,12 @@ class API {
     }
 
     async resolvePublicChat(username) {
-        try {
-            const result = await this.call('contacts.resolveUsername', {
-                username: username.replace('@', ''), // убираем '@'
-            });
-            const chat = result.chats[0]; // Первый найденный результат
-            console.log('Chat ID:', chat.id);
-            console.log('Access Hash:', chat.access_hash);
-            return {chat_id: chat.id, access_hash: chat.access_hash};
-        } catch (error) {
-            console.error('Error resolving public chat:', error);
-            return null;
-        }
+        const result = await this.call('contacts.resolveUsername', {
+            username: username.replace('@', ''), // убираем '@'
+        });
+        const chat = result.chats[0]; // Первый найденный результат
+
+        return {chat_id: chat.id, access_hash: chat.access_hash};
     }
 
     async getChatHistory(chat_id, access_hash, offset_id) {
