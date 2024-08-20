@@ -1,4 +1,3 @@
-const path = require('path');
 const MTProto = require('@mtproto/core');
 const {sleep} = require('@mtproto/core/src/utils/common');
 
@@ -55,6 +54,21 @@ class API {
         }
     }
 
+    async getUser(userId,) {
+        try {
+            return await this.call('users.getUsers', {
+                id: [
+                    {
+                        _: 'inputUser',
+                        user_id: userId,
+                        access_hash: 0, // Access hash is optional but recommended for more details
+                    },
+                ],
+            });
+        } catch (error) {
+            console.error('Error fetching user details:', error);
+        }
+    }
 
     async resolvePublicChat(username) {
         try {
@@ -88,15 +102,28 @@ class API {
         }
     }
 
-    async sendMessage(user_id, message) {
-        return await this.mtproto.call('messages.sendMessage', {
-            peer: {
-                _: 'inputPeerUser',
-                user_id: user_id,
-            },
-            message: message,
-            random_id: this.generateRandomId(),
-        });
+
+    async sendMessageFromChat({channel_id, msg_id, user_id, channel_access_hash}, message) {
+        try {
+            return await this.call('messages.sendMessage', {
+                clear_draft: true,
+                peer: {
+                    _: 'inputPeerUserFromMessage',
+                    peer: {
+                        _: 'inputPeerChannel', // Assuming the chat is a group or channel
+                        channel_id: channel_id,
+                        access_hash: channel_access_hash,
+                    },
+                    msg_id: msg_id,
+                    user_id: user_id,
+                },
+                message: message,
+                random_id: this.generateRandomId(),
+            });
+        } catch (error) {
+            console.error('Failed to send message:', error);
+            throw error;
+        }
     }
 
     generateRandomId() {
