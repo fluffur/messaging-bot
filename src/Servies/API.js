@@ -17,6 +17,11 @@ class API {
         });
     }
 
+    /**
+     * @param {string} method
+     * @param params
+     * @param options
+     */
     async call(method, params, options = {}) {
         try {
             return await this.mtproto.call(method, params, options);
@@ -54,22 +59,9 @@ class API {
         }
     }
 
-    async getUser(userId,) {
-        try {
-            return await this.call('users.getUsers', {
-                id: [
-                    {
-                        _: 'inputUser',
-                        user_id: userId,
-                        access_hash: 0, // Access hash is optional but recommended for more details
-                    },
-                ],
-            });
-        } catch (error) {
-            console.error('Error fetching user details:', error);
-        }
-    }
-
+    /**
+     * @param {string} username
+     * */
     async resolvePublicChat(username) {
         const result = await this.call('contacts.resolveUsername', {
             username: username.replace('@', ''), // убираем '@'
@@ -79,23 +71,24 @@ class API {
         return {chat_id: chat.id, access_hash: chat.access_hash};
     }
 
-    async getChatHistory(chat_id, access_hash, offset_id) {
-        try {
-            return await this.call('messages.getHistory', {
-                peer: {
-                    _: 'inputPeerChannel',
-                    channel_id: chat_id,
-                    access_hash: access_hash
-                },
-                limit: 100,
-                offset_id: offset_id
-            });
-        } catch (error) {
-            console.error('Error fetching chat history:', error);
-            return null;
-        }
-    }
 
+    /**
+     * @param chat_id
+     * @param access_hash
+     * @param {number} offset_id
+     * @param {number} limit
+     */
+    async getChatHistory({chat_id, access_hash, offset_id, limit = 100}) {
+        return await this.call('messages.getHistory', {
+            peer: {
+                _: 'inputPeerChannel',
+                channel_id: chat_id,
+                access_hash: access_hash
+            },
+            limit: limit,
+            offset_id: offset_id
+        });
+    }
 
     async sendMessageFromChat({channel_id, msg_id, user_id, channel_access_hash}, message) {
         try {
@@ -125,4 +118,5 @@ class API {
     }
 }
 
-module.exports = API;
+module
+    .exports = API;

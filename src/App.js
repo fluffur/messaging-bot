@@ -54,9 +54,18 @@ class App {
         let offsetId = 0;
         const users = new Map();
         for (let i = 0; i < hundreds; i++) {
-            const history = await this.api.getChatHistory(chat_id, access_hash, offsetId);
+            const history = await this.api.getChatHistory({
+                chat_id: chat_id,
+                access_hash: access_hash,
+                offset_id: offsetId,
+                limit: 100,
+            });
             for (const historyUser of history.users) {
-                const msg = history.messages.find(message => message.from_id && message.from_id.user_id && message.from_id.user_id === historyUser.id);
+                const msg = history.messages.find(message =>
+                    message.from_id &&
+                    message.from_id.user_id &&
+                    message.from_id.user_id === historyUser.id
+                );
                 if (msg === undefined) {
                     continue;
                 }
@@ -68,7 +77,7 @@ class App {
                 });
             }
 
-            console.log(`Номер сотни сообщений: ${i}, Всего пользователей найдено: ${users.size}`);
+            console.log(`Прочитано сообщений: ${i * 100}, Всего пользователей найдено: ${users.size}`);
 
             offsetId = history.messages[history.messages.length - 1].id;
             await sleep(800);
@@ -83,10 +92,10 @@ class App {
         for (const user of users) {
             const [user_id, params] = user;
             const result = await this.api.sendMessageFromChat({
-                channel_access_hash: params.channel_access_hash,
-                channel_id: params.channel_id,
-                msg_id: params.msg_id,
-                user_id: user_id,
+                    channel_access_hash: params.channel_access_hash,
+                    channel_id: params.channel_id,
+                    msg_id: params.msg_id,
+                    user_id: user_id,
                 }, message
             );
             console.log(result);
