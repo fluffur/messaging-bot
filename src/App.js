@@ -77,7 +77,7 @@ class App {
                 });
             }
 
-            console.log(`Прочитано сообщений: ${i * 100}, Всего пользователей найдено: ${users.size}`);
+            console.log(`Прочитано сообщений: ${(i + 1) * 100}, Всего пользователей найдено: ${users.size}`);
 
             offsetId = history.messages[history.messages.length - 1].id;
             await sleep(800);
