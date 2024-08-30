@@ -1,34 +1,34 @@
 require('dotenv').config();
-const path = require("node:path");
-const Auth = require("../src/Servies/Auth");
-const API = require("../src/Servies/API");
-const App = require("../src/App");
-const fs = require("node:fs").promises;
-const prompt = require("prompt-sync")({sigint: true});
+const {TelegramClient, Api} = require('telegram');
+const {StoreSession} = require('telegram/sessions');
+const input = require('input');
+const App = require('../src/App');
 
+const apiId = parseInt(process.env.API_ID);
+const apiHash = process.env.API_HASH;
+const storeSession = new StoreSession(process.env.SESSION_NAME);
+s
 (async () => {
-    console.time('Время выполнения');
+  const client = new TelegramClient(storeSession, apiId, apiHash, {
+    connectionRetries: 5,
+  });
 
-    const api = new API(process.env.API_ID, process.env.API_HASH, path.resolve(__dirname, '../data/1.json'));
-    const auth = new Auth(api);
+  const app = new App(client);
+  await app.start();
 
-    const app = new App(api, auth);
-    await app.checkAuth(process.env.PHONE_NUMBER);
+  const peer = await input.text('Введите название чата: ');
+  const queryCount = await input.text(
+      'Введите сколько примерно сообщений из истории нужно получить: ');
 
-    const chatName = prompt(
-        'Введите название чата, из которого нужно отправить сообщения пользователям: '
-    )
-    const hundreds = prompt('Введите количество сотен сообщений для получения из истории чата: ')
-    const users = await app.getUsersFromHistory(chatName, parseInt(hundreds));
+  const users = await app.getUsersFromHistory(peer, queryCount);
+  console.info(`Найдено ${users.length} пользователей`);
+  const message = await input.text('Введите сообщение: ');
 
-    await fs.writeFile(path.join(__dirname, '../users.json'), JSON.stringify(users));
+  const answer = await input.confirm(
+      `${users.length} пользователям будет отправлено сообщение, продолжить?`);
 
-    // TODO: Протестировать отправку сообщений
-    // const message = prompt('Введите сообщение, которое вы хотите отправить пользователям: ');
-    // await app.sendMessageToUsersFromChat(users, message)
-
-    console.timeEnd('Время выполнения');
-
+  if (!answer) {
+    return;
+  }
+  await app.sendMessageToUsers(users, message);
 })();
-
-

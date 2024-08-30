@@ -1,107 +1,80 @@
-const {sleep} = require("@mtproto/core/src/utils/common");
-const prompt = require("prompt-sync")({sigint: true});
+const input = require('input');
+const {Api, TelegramClient} = require('telegram');
+const {sleep} = require('telegram/Helpers');
 
 class App {
-    /**
-     * @param {API} api
-     * @param {Auth} auth
-     * */
-    constructor(api, auth) {
-        this.api = api;
-        this.auth = auth;
-    }
 
-    async checkAuth(phone) {
-        const user = await this.auth.getUser();
-        if (!user) {
+  /**
+   * @param {TelegramClient} client
+   */
+  constructor(client) {
+    this.client = client;
+  }
 
-            const {phone_code_hash} = await this.auth.sendCode(phone)
-            const code = prompt('Enter the code you received: ');
+  async start() {
+    await this.client.start({
+      phoneNumber: async () => await input.text('Введите номер телефона: '),
+      password: async () => await input.text('Введите пароль: '),
+      phoneCode: async () => await input.text('Введите код подтверждения: '),
+      onError: (err) => console.log(err),
+    });
+    this.client.session.save();
+  }
 
-            try {
-                const signInResult = await this.auth.signIn({
-                    code,
-                    phone,
-                    phone_code_hash,
-                });
+  /**
+   * @param {bigInt.BigInteger | string | number | Api.PeerUser | Api.PeerChat | Api.PeerChannel | Api.InputPeerEmpty | Api.InputPeerSelf | Api.InputPeerChat | Api.InputPeerUser | Api.InputPeerChannel | Api.InputPeerUserFromMessage | Api.InputPeerChannelFromMessage | Api.User | Api.Chat | Api.Channel | Api.UserEmpty | Api.ChatEmpty | Api.ChatForbidden | Api.ChannelForbidden | Api.UserFull | Api.messages.ChatFull | Api.ChatFull | Api.ChannelFull | Api.InputChannelEmpty | Api.InputChannel | Api.InputChannelFromMessage | Api.InputUserEmpty | Api.InputUserSelf | Api.InputUser | Api.InputUserFromMessage} peer
+   * @param {number} messagesCount
+   */
+  async getUsersFromHistory(peer, messagesCount) {
 
-                if (signInResult._ === 'auth.authorizationSignUpRequired') {
-                    await this.auth.signUp({
-                        phone,
-                        phone_code_hash,
-                    });
-                }
-            } catch (error) {
-                if (error.error_message !== 'SESSION_PASSWORD_NEEDED') {
-                    console.log(`error:`, error);
-                }
-            }
+    const queryCount = Math.ceil(messagesCount / 100);
+
+    const usernameSet = new Set();
+
+    let offsetId = 0;
+
+    for (let i = 0; i < queryCount; i++) {
+      const result = await this.client.invoke(
+          new Api.messages.GetHistory({
+            peer: peer,
+            limit: 100,
+            offsetId: offsetId,
+          }),
+      );
+      const messages = result.messages;
+
+      const users = result.users;
+
+      offsetId = messages[messages.length - 1].id;
+
+      for (const user of users) {
+        const username = user.username;
+        if (username !== undefined && username !== null) {
+          usernameSet.add(user.username);
         }
+      }
+
+      const messagesCount = (i + 1) * 100;
+      console.info(
+          `Прочитано сообщений ${messagesCount}, Найдено пользователей ${usernameSet.size}`);
+
+      await sleep(800);
     }
+    return Array.from(usernameSet);
+  }
 
-    async getUsersFromHistory(chatName, hundreds = 1) {
-
-        const data = await this.api.resolvePublicChat(chatName);
-        if (!data) {
-            console.error('Chat not found', chatName)
-            return;
-        }
-
-        const {chat_id, access_hash} = data;
-        console.log(`Chat ID: ${chat_id}, Access Hash: ${access_hash}`);
-
-
-        let offsetId = 0;
-        const users = new Map();
-        for (let i = 0; i < hundreds; i++) {
-            const history = await this.api.getChatHistory({
-                chat_id: chat_id,
-                access_hash: access_hash,
-                offset_id: offsetId,
-                limit: 100,
-            });
-            for (const historyUser of history.users) {
-                const msg = history.messages.find(message =>
-                    message.from_id &&
-                    message.from_id.user_id &&
-                    message.from_id.user_id === historyUser.id
-                );
-                if (msg === undefined) {
-                    continue;
-                }
-                users.set(historyUser.id, {
-                    channel_access_hash: access_hash,
-                    msg_id: msg.id,
-                    user_id: historyUser.id,
-                    channel_id: chat_id
-                });
-            }
-
-            console.log(`Прочитано сообщений: ${(i + 1) * 100}, Всего пользователей найдено: ${users.size}`);
-
-            offsetId = history.messages[history.messages.length - 1].id;
-            await sleep(800);
-
-        }
-        return Array.from(users.entries());
-
+  /**
+   * @param {string[]} users
+   * @param {string | Api.Message} message
+   */
+  async sendMessageToUsers(users, message) {
+    await this.client.connect();
+    for (const user of users) {
+      await this.client.sendMessage(user, {message: message});
+      console.info(`Пользователю ${user} отправлено сообщение: ${message}`);
+      await sleep(1000);
     }
-
-
-    async sendMessageToUsersFromChat(users, message) {
-        for (const user of users) {
-            const [user_id, params] = user;
-            const result = await this.api.sendMessageFromChat({
-                    channel_access_hash: params.channel_access_hash,
-                    channel_id: params.channel_id,
-                    msg_id: params.msg_id,
-                    user_id: user_id,
-                }, message
-            );
-            console.log(result);
-            await sleep(1000);
-        }
-    }
+  }
 }
 
 module.exports = App;
