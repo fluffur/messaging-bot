@@ -75,6 +75,23 @@ class App {
       await sleep(1000);
     }
   }
+
+  async startMessaging() {
+    await this.client.connect();
+    const peer = await input.text('Введите название чата: ');
+    const queryCount = await input.text(
+        'Введите сколько примерно сообщений из истории нужно получить: ');
+
+    const users = await this.getUsersFromHistory(peer, queryCount);
+    const message = await input.text('Введите сообщение: ');
+
+    const answer = await input.confirm(
+        `${users.length} пользователям будет отправлено сообщение, продолжить?`);
+
+    if (answer) {
+      await this.sendMessageToUsers(users, message);
+    }
+  }
 }
 
 module.exports = App;
