@@ -76,6 +76,13 @@ class App {
     }
   }
 
+  async getUsersInfo(usernames) {
+    await this.client.connect();
+    return await this.client.invoke(
+        new Api.users.GetUsers({id: usernames})
+    );
+  }
+
   async startMessaging() {
     await this.client.connect();
     const chatName = await input.text('Введите название чата: ');
