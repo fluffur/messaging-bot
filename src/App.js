@@ -79,10 +79,10 @@ class App {
   async startMessaging() {
     await this.client.connect();
     const chatName = await input.text('Введите название чата: ');
-    const messagesCount = await input.text(
+    const messagesLimit = await input.text(
         'Введите сколько примерно сообщений из истории нужно получить: ');
 
-    const users = await this.getUsersFromHistory(chatName, messagesCount);
+    const users = await this.getUsersFromHistory(chatName, messagesLimit);
     const message = await input.text('Введите сообщение: ');
 
     const answer = await input.confirm(
