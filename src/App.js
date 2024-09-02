@@ -11,7 +11,7 @@ class App {
     this.client = client;
   }
 
-  async start() {
+  async logIn() {
     await this.client.start({
       phoneNumber: async () => await input.text('Введите номер телефона: '),
       password: async () => await input.text('Введите пароль: '),

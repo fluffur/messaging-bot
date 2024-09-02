@@ -13,7 +13,7 @@ const storeSession = new StoreSession(process.env.SESSION_NAME);
   });
 
   const app = new App(client);
-  await app.start();
+  await app.logIn();
   await app.startMessaging();
 
 })();
