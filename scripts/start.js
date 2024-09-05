@@ -5,7 +5,8 @@ const App = require('../src/App');
 
 const apiId = parseInt(process.env.API_ID);
 const apiHash = process.env.API_HASH;
-const storeSession = new StoreSession(process.env.SESSION_NAME);
+const sessionName = process.env.SESSION_NAME;
+const storeSession = new StoreSession(sessionName);
 
 (async () => {
   const client = new TelegramClient(storeSession, apiId, apiHash, {

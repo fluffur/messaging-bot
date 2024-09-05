@@ -7,23 +7,23 @@ services:
     volumes:
       - ./:/usr/src/app
 
-  db:
-    image: mysql:8.0
-    container_name: messaging-db
-    restart: unless-stopped
-    volumes:
-      - db-data:/var/lib/mysql
-    environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: messaging
-
-    healthcheck:
-      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
-      interval: 10s
-      timeout: 5s
-      retries: 3
-    ports:
-      - "3306:3306"
+#  db:
+#    image: mysql:8.0
+#    container_name: messaging-db
+#    restart: unless-stopped
+#    volumes:
+#      - db-data:/var/lib/mysql
+#    environment:
+#      MYSQL_ROOT_PASSWORD: root
+#      MYSQL_DATABASE: messaging
+#
+#    healthcheck:
+#      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
+#      interval: 10s
+#      timeout: 5s
+#      retries: 3
+#    ports:
+#      - "3306:3306"
 
 volumes:
   db-data:
