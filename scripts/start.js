@@ -1,7 +1,7 @@
 require('dotenv').config();
 const {TelegramClient} = require('telegram');
 const {StoreSession} = require('telegram/sessions');
-const App = require('../src/App');
+const CliApp = require('../src/App');
 
 const apiId = parseInt(process.env.API_ID);
 const apiHash = process.env.API_HASH;
@@ -13,7 +13,7 @@ const storeSession = new StoreSession(sessionName);
     connectionRetries: 5,
   });
 
-  const app = new App(client);
+  const app = new CliApp(client);
   await app.logIn();
   await app.startMessaging();
 
