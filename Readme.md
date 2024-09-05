@@ -10,7 +10,6 @@
 ```dotenv
 API_ID=
 API_HASH=
-PHONE_NUMBER=
 SESSION_NAME=messaging-session
 ```
 Заполните пустые места вашими `api_id`, `api_hash` и номером телефона, который вы вводили при регистрации.    
