@@ -76,6 +76,9 @@ class App {
     }
   }
 
+  /**
+   * @param {Api.TypeEntityLike[]} usernames
+   */
   async getUsersInfo(usernames) {
     await this.client.connect();
     return await this.client.invoke(
