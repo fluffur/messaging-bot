@@ -24,6 +24,8 @@ class App {
   /**
    * @param {bigInt.BigInteger | string | number | Api.PeerUser | Api.PeerChat | Api.PeerChannel | Api.InputPeerEmpty | Api.InputPeerSelf | Api.InputPeerChat | Api.InputPeerUser | Api.InputPeerChannel | Api.InputPeerUserFromMessage | Api.InputPeerChannelFromMessage | Api.User | Api.Chat | Api.Channel | Api.UserEmpty | Api.ChatEmpty | Api.ChatForbidden | Api.ChannelForbidden | Api.UserFull | Api.messages.ChatFull | Api.ChatFull | Api.ChannelFull | Api.InputChannelEmpty | Api.InputChannel | Api.InputChannelFromMessage | Api.InputUserEmpty | Api.InputUserSelf | Api.InputUser | Api.InputUserFromMessage} peer
    * @param {number} messagesCount
+   *
+   * @return {Api.TypeEntityLike}
    */
   async getUsersFromHistory(peer, messagesCount) {
 
